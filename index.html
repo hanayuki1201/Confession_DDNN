@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>v1.1 · Giấu Tên — Trang confession</title>
+<style>
+:root{
+  --bg:#f0f2f5;--card:#fff;--ink:#050505;--ink2:#65676b;--line:#e4e6eb;--bubble:#f0f2f5;--accent:#1b74e4;--accent2:#e7f3ff;--chip:#e4e6eb;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;--postfont:var(--font);
+  --cover1:#6a5cff;--cover2:#ff7ab6;--cover3:#ffd36e;
+}
+.s-phay.dark{--bg:#18191a;--card:#242526;--ink:#e4e6eb;--ink2:#b0b3b8;--line:#3a3b3c;--bubble:#3a3b3c;--accent:#2d88ff;--accent2:#263951;--chip:#3a3b3c}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#0b0b0e;font-family:var(--font);overflow:hidden}
+body{display:flex;align-items:center;justify-content:center}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,textarea{font:inherit}
+#phone{position:relative;width:100%;height:100%;max-width:430px;max-height:932px;overflow:hidden;background:var(--bg);color:var(--ink);isolation:isolate;display:flex;flex-direction:column}
+@media (min-width:520px){#phone{height:min(932px,96vh);aspect-ratio:430/932;width:auto;border-radius:44px;box-shadow:0 0 0 10px #1c1c22,0 0 0 12px #2c2c34,0 30px 80px rgba(0,0,0,.6)}}
+
+/* app bar */
+#bar{flex:none;display:flex;align-items:center;gap:6px;padding:calc(env(safe-area-inset-top) + 10px) 10px 8px;background:var(--card);border-bottom:1px solid var(--line);z-index:5}
+#bar .ib{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:18px;color:var(--ink)}
+#bar .ib:active{background:var(--chip)}
+#barTitle{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#bell{position:relative}
+#bell b{position:absolute;top:2px;right:2px;min-width:16px;height:16px;border-radius:8px;background:#e41e3f;color:#fff;font-size:10px;display:none;place-items:center;padding:0 4px}
+
+#scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
+#scroll::-webkit-scrollbar{width:0}
+
+/* page header */
+#head{background:var(--card);margin-bottom:8px}
+#cover{height:150px;position:relative;overflow:hidden;background:linear-gradient(135deg,var(--cover1),var(--cover2) 60%,var(--cover3))}
+#cover .big{position:absolute;right:18px;bottom:6px;font-size:84px;opacity:.9;filter:drop-shadow(0 6px 14px rgba(0,0,0,.25))}
+#cover .pat{position:absolute;inset:0;opacity:.18;background-image:radial-gradient(#fff 1.5px,transparent 1.5px);background-size:16px 16px}
+#pav{width:96px;height:96px;border-radius:50%;margin:-52px 0 0 14px;position:relative;border:4px solid var(--card);background:linear-gradient(135deg,#fff,#dfe6ff);display:grid;place-items:center;font-size:48px}
+#pinfo{padding:6px 14px 12px}
+#pname{font-size:22px;font-weight:800;line-height:1.2;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#pname .tick{width:18px;height:18px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;display:inline-grid;place-items:center}
+#pmeta{color:var(--ink2);font-size:14px;margin-top:4px}
+#pabout{font-size:14px;margin-top:6px;line-height:1.4}
+#pbtns{display:flex;gap:8px;margin-top:12px}
+#pbtns button{flex:1;border-radius:8px;padding:9px 6px;font-weight:700;font-size:14px;background:var(--chip);color:var(--ink)}
+#pbtns .pri{background:var(--accent);color:#fff}
+#tabs{display:flex;gap:4px;padding:0 10px;border-top:1px solid var(--line)}
+#tabs span{padding:12px 10px;font-weight:600;font-size:14px;color:var(--ink2)}
+#tabs span.on{color:var(--accent);border-bottom:3px solid var(--accent)}
+
+/* composer */
+#composer{background:var(--card);margin-bottom:8px;padding:10px 12px;display:flex;align-items:center;gap:10px}
+#composer .av{width:40px;height:40px;border-radius:50%;background:var(--chip);display:grid;place-items:center;font-size:20px;flex:none}
+#composer button{flex:1;text-align:left;background:var(--bubble);border-radius:20px;padding:10px 14px;color:var(--ink2);font-size:15px}
+
+/* new posts pill */
+#newPill{position:absolute;left:50%;top:calc(env(safe-area-inset-top) + 64px);transform:translateX(-50%);z-index:8;background:var(--accent);color:#fff;border-radius:18px;padding:7px 14px;font-weight:700;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.25);display:none}
+
+/* post */
+.post{background:var(--card);margin-bottom:8px;animation:in .35s ease-out}
+@keyframes in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.ph{display:flex;align-items:center;gap:9px;padding:12px 12px 6px}
+.ph .av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#fff,#dfe6ff);display:grid;place-items:center;font-size:21px;flex:none;border:1px solid var(--line)}
+.ph .n{font-weight:700;font-size:15px;line-height:1.2}
+.ph .t{font-size:12.5px;color:var(--ink2)}
+.ph .more{margin-left:auto;color:var(--ink2);font-size:20px}
+.pb{padding:2px 12px 8px;font-size:15px;line-height:1.45;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere;font-family:var(--postfont)}
+.pb .num{font-weight:800;color:var(--accent)}
+.pb .seeMore{color:var(--ink2);font-weight:600}
+.pb .tags{margin-top:6px;color:var(--accent);font-weight:600}
+.pb .ad{margin-top:8px;padding:7px 10px;border-left:3px solid var(--accent);background:var(--accent2);border-radius:0 8px 8px 0;font-size:14px}
+.bgpost{margin:4px 0 8px;min-height:220px;display:grid;place-items:center;text-align:center;padding:24px 22px;font-size:22px;font-weight:800;line-height:1.35;color:#fff;white-space:pre-wrap}
+.imgpost{margin:4px 0 8px;height:240px;display:grid;place-items:center;font-size:110px;background:linear-gradient(135deg,#ffe0ec,#e0ecff)}
+.rs{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;color:var(--ink2);font-size:14px}
+.rs .em{display:flex;align-items:center;gap:6px}
+.rs .em i{font-style:normal;display:flex}
+.rs .em i span{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:13px;background:var(--card);margin-left:-4px;border:2px solid var(--card)}
+.rs .em i span:first-child{margin-left:0}
+.acts{display:flex;border-top:1px solid var(--line);margin:0 12px}
+.acts button{flex:1;padding:9px 0;font-weight:600;font-size:14px;color:var(--ink2);border-radius:6px;display:flex;justify-content:center;gap:6px;align-items:center}
+.acts button.on{color:var(--accent)}
+.acts button:active{background:var(--chip)}
+.cmts{padding:4px 12px 10px;border-top:1px solid var(--line);margin:0 0}
+.cmts .sort{font-size:13.5px;font-weight:700;color:var(--ink2);padding:8px 0 4px}
+.cm{display:flex;gap:7px;margin-top:8px;animation:in .3s ease-out}
+.cm .av{width:32px;height:32px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:14px;font-weight:800;color:#fff}
+.cm .bx{min-width:0;max-width:calc(100% - 40px)}
+.cm .bb{display:inline-block;background:var(--bubble);border-radius:16px;padding:7px 11px;position:relative;max-width:100%}
+.cm .nm{font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.cm .tx{font-size:14.5px;line-height:1.38;white-space:pre-wrap;overflow-wrap:anywhere}
+.cm .tx .at{color:var(--accent);font-weight:600}
+.cm .ln{font-size:12px;color:var(--ink2);margin:3px 0 0 10px;display:flex;gap:12px;font-weight:600}
+.cm .rc{position:absolute;right:-8px;bottom:-10px;background:var(--card);border-radius:10px;padding:1px 5px;font-size:11.5px;box-shadow:0 1px 3px rgba(0,0,0,.2);color:var(--ink2);white-space:nowrap}
+.cm.me .bb{outline:2px solid var(--accent)}
+.cm.reply{margin-left:40px}
+.cm.reply .av{width:24px;height:24px;font-size:11px}
+.bdg{font-size:10.5px;font-weight:800;border-radius:6px;padding:1px 6px;color:#fff}
+.bdg.top{background:linear-gradient(90deg,#f7b928,#ff8a00)}
+.bdg.admin{background:#1b74e4}
+.bdg.author{background:#7a3cff}
+.bdg.npc{background:#e0a100;color:#1a1200}
+.bdg.new{background:#45bd62}
+.typing{display:flex;gap:7px;align-items:center;margin-top:8px;color:var(--ink2);font-size:13px}
+.typing .dots{background:var(--bubble);border-radius:14px;padding:8px 12px;display:flex;gap:3px}
+.typing .dots i{width:6px;height:6px;border-radius:50%;background:var(--ink2);animation:dot 1s infinite}
+.typing .dots i:nth-child(2){animation-delay:.15s}.typing .dots i:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+.sysl{margin-top:8px;font-size:13px;color:var(--ink2);font-style:italic;padding-left:4px}
+.evl{margin-top:8px;font-size:13.5px;font-weight:700;padding:7px 10px;border-radius:10px;background:linear-gradient(90deg,rgba(255,80,120,.16),rgba(80,140,255,.16))}
+.cin{display:flex;gap:8px;align-items:center;margin-top:10px}
+.cin .av{width:32px;height:32px;border-radius:50%;background:var(--chip);display:grid;place-items:center;font-size:16px;flex:none}
+.cin input{flex:1;min-width:0;background:var(--bubble);border:0;border-radius:18px;padding:9px 13px;color:var(--ink);outline:none;font-size:14px}
+.pending{opacity:.7;border:2px dashed var(--line)}
+.pending .ph .t::after{content:" · Đang chờ duyệt"}
+
+/* reaction picker */
+#picker{position:absolute;z-index:20;background:var(--card);border-radius:28px;box-shadow:0 6px 24px rgba(0,0,0,.25);padding:6px 8px;display:none;gap:4px}
+#picker button{font-size:30px;width:42px;height:42px;transition:transform .15s}
+#picker button:hover,#picker button:active{transform:scale(1.35) translateY(-6px)}
+.flyre{position:absolute;font-size:30px;pointer-events:none;z-index:21;animation:fly 1.1s ease-out forwards}
+@keyframes fly{to{transform:translateY(-120px) scale(1.4);opacity:0}}
+
+/* toast */
+#toast{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom) + 24px);transform:translateX(-50%);z-index:40;background:rgba(20,20,24,.92);color:#fff;border-radius:12px;padding:10px 14px;font-size:13px;max-width:88%;text-align:center;display:none;line-height:1.4}
+#notif{position:absolute;left:10px;right:10px;top:calc(env(safe-area-inset-top) + 8px);z-index:30;background:var(--card);color:var(--ink);border-radius:14px;box-shadow:0 8px 28px rgba(0,0,0,.28);padding:10px 12px;display:none;gap:10px;align-items:center;font-size:13.5px;line-height:1.35;animation:drop .35s ease-out}
+@keyframes drop{from{transform:translateY(-30px);opacity:0}to{transform:none;opacity:1}}
+#notif .i{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:18px;flex:none}
+
+/* sheets */
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:35;background:var(--card);color:var(--ink);border-radius:18px 18px 0 0;padding:14px 14px calc(env(safe-area-inset-bottom) + 14px);transform:translateY(105%);transition:transform .28s;max-height:88%;overflow:auto;box-shadow:0 -8px 30px rgba(0,0,0,.25)}
+.sheet.on{transform:none}
+.sheet h3{font-size:16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.sheet h3 button{font-size:20px;opacity:.7}
+.sheet p{font-size:13px;line-height:1.5;color:var(--ink2);margin:6px 0}
+.sheet textarea{width:100%;height:140px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px;font-size:13px;resize:vertical}
+#dataIn{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.btn{background:var(--chip);color:var(--ink);border-radius:10px;padding:9px 13px;font-size:14px;font-weight:600}
+.btn.pri{background:var(--accent);color:#fff}
+.btn.sm{padding:7px 10px;font-size:12.5px}
+.btn.on{outline:2px solid var(--accent)}
+.lbl2{font-size:12.5px;color:var(--ink2);margin-top:12px}
+.tagchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tagchips button{background:var(--chip);border-radius:14px;padding:5px 10px;font-size:12.5px}
+.tagchips button.on{background:var(--accent);color:#fff}
+#scrim{position:absolute;inset:0;background:rgba(0,0,0,.4);z-index:34;display:none}
+
+/* empty */
+#empty{position:absolute;inset:0;z-index:15;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;gap:12px;background:radial-gradient(circle at 50% 30%,#2a2f55,#0c0c12 70%);color:#fff}
+#empty .logo{font-size:64px}
+#empty h1{font-size:22px}
+#empty p{font-size:14px;line-height:1.55;color:#c9c9d6;max-width:330px}
+#empty .btn{background:#2b2b33;color:#fff}
+#empty .btn.pri{background:#2d88ff}
+
+/* ---------- skins ---------- */
+.s-diendan{--bg:#12161f;--card:#1b2130;--ink:#dfe5f0;--ink2:#8b96ab;--line:#2a3245;--bubble:#222a3b;--accent:#f0a33a;--accent2:#2b2a24;--chip:#283149;--cover1:#1b2130;--cover2:#2f3d5c;--cover3:#f0a33a}
+.s-diendan .post{border-radius:0;border-left:3px solid var(--accent)}
+.s-diendan .cm .av,.s-diendan .ph .av,.s-diendan #pav{border-radius:6px}
+.s-diendan .cm .bb{border-radius:6px}
+.s-diendan .pb{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px}
+.s-ngocgian{--bg:#e8efe9;--card:#f7fbf6;--ink:#1f2d27;--ink2:#5f7a6d;--line:#cfe0d4;--bubble:#e6f1e9;--accent:#2f8f6b;--accent2:#ddf1e6;--chip:#dbe9df;--cover1:#2f8f6b;--cover2:#9fe0c4;--cover3:#f5f0d7;--postfont:Georgia,"Times New Roman",serif}
+.s-ngocgian .post{border:1px solid var(--line);border-radius:14px;margin:0 8px 10px;box-shadow:0 2px 10px rgba(30,80,60,.08)}
+.s-caothi{--bg:#efe4cf;--card:#f8f0de;--ink:#3b2a17;--ink2:#7d6446;--line:#dccbaa;--bubble:#efe2c7;--accent:#a3361f;--accent2:#f3dcc7;--chip:#e6d6b6;--cover1:#7a2e1c;--cover2:#c8963e;--cover3:#f0d39a;--postfont:Georgia,"Times New Roman",serif}
+.s-caothi .post{border:1px solid var(--line);margin:0 8px 10px;box-shadow:2px 3px 0 rgba(90,60,20,.15)}
+.s-caothi .pb .num{color:#a3361f}
+.s-bangphep{--bg:#1d1630;--card:#2a2143;--ink:#efe7ff;--ink2:#b6a8d6;--line:#3d3260;--bubble:#352a55;--accent:#b88cff;--accent2:#33285a;--chip:#3a2f5e;--cover1:#3b1d7a;--cover2:#b88cff;--cover3:#ffcf6e;--postfont:Georgia,"Times New Roman",serif}
+.s-holo{--bg:#030a14;--card:#071526;--ink:#c8f7ff;--ink2:#5fa8b8;--line:#0f3550;--bubble:#0b2238;--accent:#00e5ff;--accent2:#062c3d;--chip:#0d2a40;--cover1:#020b18;--cover2:#00e5ff;--cover3:#ff2fd1;--postfont:ui-monospace,Menlo,Consolas,monospace}
+.s-holo .post{border:1px solid var(--line);margin:0 8px 10px}
+.s-tuongphan{--bg:#5b5d5f;--card:#eceae4;--ink:#222;--ink2:#666;--line:#cfccc3;--bubble:#e0ddd4;--accent:#3c6e47;--accent2:#dfe8dc;--chip:#d6d3ca;--cover1:#3a3c3e;--cover2:#76797c;--cover3:#a3a59f;--postfont:"Comic Sans MS","Chalkboard SE","Segoe Print",cursive}
+.s-tuongphan .post{margin:6px 14px 14px;transform:rotate(-.6deg);box-shadow:0 3px 8px rgba(0,0,0,.35)}
+.s-tuongphan .post:nth-child(even){transform:rotate(.7deg)}
+.s-tuongphan .post::before{content:"";display:block;width:70px;height:18px;margin:-8px auto 0;background:rgba(255,240,180,.75)}
+</style>
+</head>
+<body>
+<div id="phone">
+  <div id="bar"><button class="ib" id="backBtn">←</button><div id="barTitle">Confession</div><button class="ib" id="offBtn" title="Ngoài trang" style="display:none">🎬</button><button class="ib" id="bell">🔔<b id="bellN"></b></button><button class="ib" id="darkBtn">🌙</button><button class="ib" id="dataBtn">📥</button></div>
+  <div id="scroll">
+    <div id="head">
+      <div id="cover"><div class="pat"></div><div class="big" id="coverEmo">💌</div></div>
+      <div id="pav">💌</div>
+      <div id="pinfo"><div id="pname"><span id="pn">—</span><span class="tick" id="ptick" hidden>✓</span></div><div id="pmeta"></div><div id="pabout"></div>
+        <div id="pbtns"><button id="likePage">👍 Thích</button><button id="msgBtn">💬 Nhắn tin</button><button class="pri" id="sendCfsBtn">✍️ Gửi bài</button></div></div>
+      <div id="tabs"><span class="on">Bài viết</span><span>Giới thiệu</span><span>Ảnh</span></div>
+    </div>
+    <div id="composer"><div class="av" id="meAv">🙂</div><button id="composeBtn">Bạn muốn giấu tên nói điều gì?</button></div>
+    <div id="feed"></div>
+    <div style="height:30px"></div>
+  </div>
+  <button id="newPill">↑ Bài viết mới</button>
+  <div id="picker"></div>
+  <div id="notif"><div class="i" id="notifI">🔔</div><div id="notifT"></div></div>
+  <div id="toast"></div>
+
+  <div id="empty"><div class="logo">💌</div><h1>Giấu Tên</h1><p>Giao diện trang confession cho lệnh <b>Giấu Tên (số 66)</b>.<br>Bot gửi một khối dữ liệu trong khung code. Copy nguyên khối đó, bấm <b>📥 Nạp dữ liệu</b>, dán vào là xem.</p><div class="btns" style="justify-content:center"><button class="btn pri" id="emptyLoad">📥 Nạp dữ liệu</button><button class="btn" id="demoBtn">✨ Xem thử</button></div></div>
+
+  <div id="scrim"></div>
+  <div class="sheet" id="dataSheet">
+    <h3>📥 Nạp dữ liệu <button data-close>✕</button></h3>
+    <p>Dán khối dữ liệu bot vừa gửi (dán cả dấu ``` cũng được, dán nhiều khối một lúc cũng được). <b>Nạp tiếp</b> để nối vào trang đang xem, <b>Trang mới</b> để xóa hết và bắt đầu lại.</p>
+    <textarea id="dataIn" placeholder='```json&#10;{ "skin": "phay", "page": {...}, "posts": [...] }&#10;```'></textarea>
+    <div class="btns"><button class="btn pri" id="loadAppend">Nạp tiếp</button><button class="btn" id="loadNew">Trang mới</button><button class="btn" id="pasteBtn">📋 Dán từ bộ nhớ</button></div>
+    <div class="lbl2">Tốc độ hiện bình luận</div><div class="btns" id="speedRow"></div>
+    <div class="lbl2">Đổi khung (chỉ đổi nhìn, không đổi dữ liệu)</div><div class="btns" id="skinRow"></div>
+    <div class="btns"><button class="btn sm" id="replay2">↻ Chạy lại lượt cuối</button><button class="btn sm" id="showAll">⏩ Hiện hết ngay</button><button class="btn sm" id="clearAll">🗑 Xóa trang</button></div>
+  </div>
+  <div class="sheet" id="cfsSheet">
+    <h3>✍️ Gửi bài giấu tên <button data-close>✕</button></h3>
+    <p>Viết xong bấm gửi: bài hiện ở trạng thái chờ duyệt, lệnh gửi bài được copy sẵn. Về chat dán vào là admin nhận bài.</p>
+    <textarea id="cfsIn" placeholder="Gửi bạn nam áo trắng ngồi bàn 3 thư viện chiều thứ Sáu..."></textarea>
+    <div class="tagchips" id="tagChips"></div>
+    <div class="btns"><button class="btn pri" id="cfsSend">Gửi bài</button></div>
+  </div>
+  <div class="sheet" id="offSheet"><h3>🎬 Ngoài trang <button data-close>✕</button></h3><p id="offTxt" style="color:var(--ink);font-size:14px"></p><p style="font-size:12px">Phần này người đọc trang không thấy. Chỉ mình thấy.</p></div>
+  <div class="sheet" id="notifSheet"><h3>🔔 Thông báo <button data-close>✕</button></h3><div id="notifList"></div></div>
+</div>
+
+<script>
+/* DDNN manual RP bridge 1.1. No networking. */
+(function(root){'use strict';
+const clone=x=>JSON.parse(JSON.stringify(x));
+const canon=x=>JSON.stringify(x,(_,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.keys(v).sort().reduce((r,k)=>(r[k]=v[k],r),{}):v);
+const fail=x=>{throw Error(x)};
+const object=x=>x&&typeof x==='object'&&!Array.isArray(x);
+const str=x=>typeof x==='string'&&x.length>0&&x.length<200;
+function clean(x){if(Array.isArray(x))return x.map(clean);if(object(x)){const r={};for(const k of Object.keys(x)){if(['__proto__','constructor','prototype'].includes(k))fail('Khóa dữ liệu không hợp lệ');r[k]=clean(x[k]);}return r;}return x;}
+function parse(s){if(s.length>5000000)fail('Gói quá lớn (tối đa 5 MB)');let t=s.trim();if(t.startsWith('```'))t=t.replace(/^```(?:json)?\s*/,'').replace(/\s*```$/,'');return clean(JSON.parse(t));}
+function uid(){return 's_'+(root.crypto&&root.crypto.randomUUID?root.crypto.randomUUID():Date.now().toString(36)+'_'+Math.random().toString(36).slice(2));}
+function session(module,label,game){return {module,label:label||'Ván mới',game_id:game||uid(),session_id:uid(),revision:0,batches:[],actions:[],counter:0,data:{},initialized:false,story_mode:'THẬT'};}
+function checkItems(a,kind){if(!Array.isArray(a))fail(kind+' phải là danh sách');const ids=new Set();for(const x of a){if(!object(x)||!str(x.id))fail(kind+' thiếu id ổn định');if(ids.has(x.id))fail(kind+' trùng id');ids.add(x.id);if(x.r!==undefined&&Array.isArray(x.r))checkItems(x.r,'Phản hồi');}}
+function checkData(d,module){
+ if(!object(d))fail('data phải là đối tượng');
+ const allowed=(module==='LIVE'?'skin host title time viewers likes cam off pinned top pk shop feed end me followed role':'skin page off posts events me liked myReacts role closed').split(' ');for(const k of Object.keys(d))if(!allowed.includes(k))fail('Trường data không hỗ trợ: '+k);
+ for(const k of ['top','feed','posts','events'])if(d[k]!==undefined&&!Array.isArray(d[k]))fail(k+' phải là danh sách');
+ for(const k of ['host','page','myReacts'])if(d[k]!==undefined&&!object(d[k]))fail(k+' phải là đối tượng');
+ for(const k of ['pinned','pk','shop','end'])if(d[k]!==undefined&&d[k]!==null&&!object(d[k]))fail(k+' phải là đối tượng hoặc null');
+ for(const k of ['followed','liked','closed'])if(d[k]!==undefined&&typeof d[k]!=='boolean')fail(k+' phải là true/false');
+ for(const k of ['viewers','likes'])if(d[k]!==undefined&&(!Number.isFinite(d[k])||d[k]<0))fail(k+' phải là số không âm');
+ if(d.top)for(const x of d.top)if(!object(x))fail('top không hợp lệ');
+ if(d.end&&d.end.tags!==undefined&&!Array.isArray(d.end.tags))fail('end.tags phải là danh sách');
+ if(d.myReacts)for(const k of Object.keys(d.myReacts))if(![null,'like','love','care','haha','wow','sad','angry'].includes(d.myReacts[k]))fail('myReacts không hợp lệ');
+ if(d.posts)for(const p of d.posts){if(!object(p))fail('Bài không hợp lệ');if(p.comments!==undefined&&!Array.isArray(p.comments))fail('comments phải là danh sách');if(p.tags!==undefined&&!Array.isArray(p.tags))fail('tags phải là danh sách');}
+ if(d.skin!==undefined&&!str(d.skin))fail('skin không hợp lệ');
+}
+function mergeItems(old,items,child){const out=clone(old||[]);for(const item of items){const i=out.findIndex(x=>x.id===item.id);if(item.deleted){if(i>=0)out.splice(i,1);continue;}const next=Object.assign({},i>=0?out[i]:{},clone(item));if(child&&item[child])next[child]=mergeItems(i>=0?out[i][child]:[],item[child],child==='comments'?'r':'r');if(i>=0)out[i]=next;else out.push(next);}return out;}
+function mergeData(old,d,module,snapshot){const out=snapshot?{}:clone(old);for(const k of Object.keys(d)){if(k==='feed')out.feed=mergeItems(snapshot?[]:old.feed,d.feed);else if(k==='posts')out.posts=mergeItems(snapshot?[]:old.posts,d.posts,'comments');else if(['host','page'].includes(k)&&object(d[k]))out[k]=Object.assign({},snapshot?{}:old[k],clone(d[k]));else out[k]=clone(d[k]);}return out;}
+function receive(s,e){
+ if(!object(e)||e.protocol!=='DDNN_BRIDGE_1')fail('Cần gói DDNN_BRIDGE_1');
+ if(e.module!==s.module||e.game_id!==s.game_id||e.session_id!==s.session_id)fail('Sai ván / phiên / loại lệnh. Chọn đúng phiên; không tự trộn dữ liệu.');
+ if(!str(e.batch_id))fail('Thiếu batch_id');
+ if(s.batches.includes(e.batch_id)){if(s.fingerprints&&s.fingerprints[e.batch_id]!==canon(e))fail('batch_id đã dùng nhưng nội dung khác. Xin batch_id mới.');return {session:s,duplicate:true};}
+ if(!['snapshot','delta'].includes(e.mode))fail('mode phải là snapshot hoặc delta');
+ if(!Number.isSafeInteger(e.revision)||!Number.isSafeInteger(e.base_revision)||e.revision<=s.revision||e.base_revision!==s.revision)fail('Bản cập nhật lệch mốc. Xin lại dữ liệu từ revision '+s.revision+'.');
+ if(e.mode==='delta'&&!s.initialized)fail('Phiên trống cần snapshot đầu tiên.');
+ checkData(e.data,s.module);
+ if(e.data.feed!==undefined)checkItems(e.data.feed,'Dòng live');
+ if(e.data.posts!==undefined){checkItems(e.data.posts,'Bài đăng');for(const p of e.data.posts)if(p.comments!==undefined)checkItems(p.comments,'Bình luận');}
+ if(e.data.role!==undefined&&!((s.module==='LIVE'?['viewer','host','moderator']:['reader','moderator']).includes(e.data.role)))fail('Vai không hợp lệ');
+ if(e.ack!==undefined&&!Array.isArray(e.ack))fail('ack phải là danh sách');
+ const acks=e.ack||[];const seen=new Set();for(const a of acks){if(!object(a)||!str(a.id)||!['accepted','pending','rejected'].includes(a.status)||seen.has(a.id))fail('ack không hợp lệ');seen.add(a.id);const prev=s.actions.find(x=>x.id===a.id);if(!prev)fail('ack tham chiếu thao tác không tồn tại');if(['accepted','rejected'].includes(prev.status)&&prev.status!==a.status)fail('Không đổi kết quả thao tác đã chốt');}
+ const n=clone(s);n.data=mergeData(n.data,e.data,s.module,e.mode==='snapshot');n.revision=e.revision;n.initialized=true;n.batches.push(e.batch_id);n.fingerprints=n.fingerprints||{};n.fingerprints[e.batch_id]=canon(e);for(const a of acks){const x=n.actions.find(x=>x.id===a.id);x.status=a.status;x.reason=String(a.reason||'');}return {session:n,duplicate:false};
+}
+function action(s,type,target,payload){if(!s.initialized)fail('Nạp snapshot cho phiên này trước khi thao tác.');if(s.data.closed||s.data.end)fail('Phiên đã đóng. Tạo phiên mới để chơi tiếp.');if(!str(type))fail('Loại thao tác không hợp lệ');const a={id:s.session_id+':a'+(++s.counter),type,target:target||'',payload:clean(payload||{}),status:'queued'};s.actions.push(a);return a;}
+function packet(s){return {protocol:'DDNN_BRIDGE_1',kind:'actions',module:s.module,game_id:s.game_id,session_id:s.session_id,base_revision:s.revision,story_mode:s.story_mode,actions:s.actions.filter(a=>!['accepted','rejected'].includes(a.status)).map(a=>({id:a.id,type:a.type,target:a.target,payload:a.payload}))};}
+function validateStore(x,module){if(!object(x)||x.format!=='DDNN_BACKUP_1'||x.module!==module||!Array.isArray(x.sessions)||x.sessions.length>100)fail('Bản sao lưu không đúng ứng dụng');const ids=new Set();for(const s of x.sessions){if(!object(s)||s.module!==module||!str(s.session_id)||!str(s.game_id)||ids.has(s.session_id)||!Number.isSafeInteger(s.revision)||s.revision<0||!Number.isSafeInteger(s.counter)||s.counter<0||!Array.isArray(s.actions)||!Array.isArray(s.batches)||!object(s.data))fail('Phiên trong sao lưu không hợp lệ');checkData(s.data,module);ids.add(s.session_id);for(const a of s.actions)if(!str(a.id)||!str(a.type)||!object(a.payload)||!['queued','copied','pending','accepted','rejected'].includes(a.status))fail('Thao tác sao lưu không hợp lệ');}if(!ids.has(x.selected))fail('Phiên được chọn không tồn tại');return clean(x);}
+const api={clone,parse,uid,session,receive,action,packet,validateStore,checkData};root.DDNNBridge=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
+})(typeof globalThis!=='undefined'?globalThis:this);
+
+
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id)};
+var phone=$("phone"),feed=$("feed"),scroller=$("scroll");
+
+/* ---------------- skins ---------------- */
+var SKINS={
+ phay:{name:"Phây — trang confession",post:"Confession",like:"Thích",cmt:"Bình luận",share:"Chia sẻ",fol:"người theo dõi",ask:"Bạn muốn giấu tên nói điều gì?",send:"✍️ Gửi bài",tags:["#tỏ_tình","#tâm_sự","#tìm_người","#hỏi_đáp","#bóc_phốt","#hài"]},
+ diendan:{name:"Diễn đàn",post:"Chủ đề",like:"+1",cmt:"Trả lời",share:"Trích",fol:"thành viên",ask:"Tạo chủ đề ẩn danh...",send:"✍️ Đăng ẩn danh",tags:["#tâm_sự","#hỏi","#drama","#review","#hài"]},
+ ngocgian:{name:"Ngọc Giản Tâm Sự",post:"Ngọc giản",like:"Tán thưởng",cmt:"Truyền âm",share:"Truyền tay",fol:"đệ tử theo dõi",ask:"Khắc một lời giấu tên vào ngọc giản...",send:"✍️ Khắc ngọc giản",tags:["#tỏ_lòng","#tâm_sự","#tìm_người","#hỏi_đạo","#tố_cáo"]},
+ caothi:{name:"Bảng Giấu Tên",post:"Tờ giấy",like:"Đồng tình",cmt:"Phê",share:"Chép lại",fol:"người qua lại",ask:"Viết một tờ giấy không ký tên...",send:"✍️ Dán giấy",tags:["#tỏ_tình","#than_thở","#tìm_người","#hỏi_han","#tố_giác"]},
+ bangphep:{name:"Bảng Tin Hội",post:"Mẩu tin",like:"Đồng ý",cmt:"Đáp",share:"Truyền tin",fol:"hội viên",ask:"Ghim một mẩu tin không ký tên...",send:"✍️ Ghim mẩu tin",tags:["#tỏ_tình","#tâm_sự","#tìm_đồng_đội","#hỏi","#cảnh_báo"]},
+ holo:{name:"AnonNet",post:"Tín hiệu",like:"Ping",cmt:"Phản hồi",share:"Phát lại",fol:"node theo dõi",ask:"Phát một tín hiệu ẩn danh...",send:"✍️ Phát tín hiệu",tags:["#confess","#vent","#seek","#ask","#leak"]},
+ tuongphan:{name:"Bức Tường",post:"Mẩu giấy",like:"Gật",cmt:"Viết thêm",share:"Chép",fol:"người còn sống",ask:"Dán một mẩu giấy lên tường...",send:"✍️ Dán giấy",tags:["#tìm_người","#nhắn_gửi","#cảnh_báo","#đổi_đồ","#tâm_sự"]}
+};
+var SK_ALIAS={facebook:"phay",fb:"phay","phây":"phay",forum:"diendan","diễnđàn":"diendan",tienhiep:"ngocgian","ngọcgiản":"ngocgian",cotrang:"caothi","cáothị":"caothi",fantasy:"bangphep","bảngphép":"bangphep",scifi:"holo",tanthe:"tuongphan","tườngphấn":"tuongphan"};
+var RE={like:"👍",love:"❤️",care:"🥰",haha:"😆",wow:"😮",sad:"😢",angry:"😡"};
+var RE_KEYS=["like","love","care","haha","wow","sad","angry"];
+
+/* ---------------- state ---------------- */
+var S={skin:"phay",page:{name:"",avatar:"💌",cover:"💌",followers:"",verified:false,about:""},posts:[],off:"",me:"",dark:false,liked:false,notifs:[],turns:[],myReacts:{}};
+var speed=1,skinOverride="",queue=[],playing=false,playTok=0;
+var LS="giauten_v1_state";
+function save(){try{localStorage.setItem(LS,JSON.stringify({S:S,speed:speed,skinOverride:skinOverride}))}catch(e){}}
+function load(){try{var r=localStorage.getItem(LS);if(!r)return false;var o=JSON.parse(r);if(o&&o.S){S=Object.assign(S,o.S);speed=o.speed||1;skinOverride=o.skinOverride||"";return true}}catch(e){}return false}
+
+/* ---------------- helpers ---------------- */
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function num(v){if(typeof v==="number")return v;if(v==null)return 0;var s=String(v).trim().toLowerCase().replace(/\s/g,"");var m=s.match(/^([\d.,]+)(k|n|m|tr)?$/);if(!m){var d=parseFloat(s.replace(/[^\d.]/g,""));return isNaN(d)?0:d}var n=m[1];if(m[2]){n=parseFloat(n.replace(",","."));n*=(m[2]==="k"||m[2]==="n")?1e3:1e6}else n=parseFloat(n.replace(/[.,](?=\d{3}(\D|$))/g,""));return isNaN(n)?0:n}
+function fmt(n){n=Math.round(n);if(n>=1e6)return (n/1e6).toFixed(1).replace(".",",").replace(",0","")+" Tr";if(n>=1e4)return (n/1e3).toFixed(n>=1e5?0:1).replace(".",",").replace(",0","")+"K";return n.toLocaleString("vi-VN")}
+function sk(){return SKINS[skinOverride||S.skin]||SKINS.phay}
+var COLORS=["#f5533d","#1b74e4","#45bd62","#f7b928","#a033ff","#ff66bf","#00a3a3","#e8711c","#5b6b8c","#c4366f"];
+function colorOf(u){var h=0;u=String(u||"");for(var i=0;i<u.length;i++)h=(h*31+u.charCodeAt(i))>>>0;return COLORS[h%COLORS.length]}
+function initial(u){u=String(u||"?").replace(/^@/,"").trim();var w=u.split(/\s+/);return (w.length>1?w[w.length-1]:u).charAt(0).toUpperCase()||"?"}
+function toast(m,ms){var t=$("toast");t.innerHTML=m;t.style.display="block";clearTimeout(t._h);t._h=setTimeout(function(){t.style.display="none"},ms||2400)}
+function copy(text){var done=function(){toast("✅ Đã copy:<br><b>"+esc(text)+"</b><br>Dán vào chat với bot nhé",3200)};
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(done,fallback)}else fallback();
+  function fallback(){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done()}catch(e){toast("Không copy được, chép tay giùm nha:<br><b>"+esc(text)+"</b>",5000)}document.body.removeChild(ta)}}
+window.addEventListener("error",function(e){toast("⚠️ Có lỗi khi hiển thị: "+esc(e.message||"không rõ")+"<br>Thử bấm 📥 và nạp lại dữ liệu.",5000)});
+function linkify(t){return esc(t).replace(/(^|\s)(@[^\s@.,!?:;]+(?:\s[A-ZÀ-Ỹ][^\s@.,!?:;]*)?)/g,'$1<span class="at">$2</span>')}
+phone.addEventListener("scroll",function(){if(phone.scrollTop)phone.scrollTop=0});
+
+/* ---------------- parse ---------------- */
+function extractBlocks(raw){
+  raw=String(raw||"").replace(/[“”„‟″]/g,'"').replace(/[‘’]/g,"'").replace(/ /g," ");
+  var blocks=[],re=/```[a-zA-Z_]*\s*([\s\S]*?)```/g,m;while((m=re.exec(raw)))blocks.push(m[1]);if(!blocks.length)blocks=[raw];
+  var out=[];blocks.forEach(function(b){var s=b.indexOf("{"),e=b.lastIndexOf("}");if(s<0||e<s)return;var txt=b.slice(s,e+1);var o=tryParse(txt);if(o){out.push(o);return}
+    var depth=0,st=-1,inS=false,es=false;for(var i=0;i<txt.length;i++){var c=txt[i];if(inS){if(es)es=false;else if(c==="\\")es=true;else if(c==='"')inS=false;continue}if(c==='"')inS=true;else if(c==="{"){if(depth===0)st=i;depth++}else if(c==="}"){depth--;if(depth===0&&st>=0){var oo=tryParse(txt.slice(st,i+1));if(oo)out.push(oo);st=-1}}}});
+  return out}
+function tryParse(t){try{return JSON.parse(t)}catch(e){}var c=t.replace(/\/\/[^\n"]*\n/g,"\n").replace(/,\s*([}\]])/g,"$1");try{return JSON.parse(c)}catch(e){return null}}
+function normCmt(c){if(!c)return null;if(typeof c==="string")c={x:c};var t=String(c.t||c.type||"c").toLowerCase();
+  return {id:c.id,t:t==="sys"||t==="system"?"sys":t==="event"?"event":t==="me"?"me":"c",u:c.u||c.user||c.name||"Người tham gia ẩn danh",b:c.b||c.badge||"",x:c.x||c.text||"",likes:c.likes!=null?c.likes:(c.l||0),re:c.re||"",time:c.time||"",r:(Array.isArray(c.r)?c.r:Array.isArray(c.replies)?c.replies:[]).map(normCmt).filter(Boolean),to:c.to||""}}
+function normPost(p){var re={};var src=p.react||p.reactions||{};RE_KEYS.forEach(function(k){if(src[k]!=null)re[k]=num(src[k])});
+  return {id:String(p.id||p.no||p.number||"").replace(/^#/,""),time:p.time||"Vừa xong",admin:p.admin||"",x:p.x||p.text||p.content||"",tags:Array.isArray(p.tags)?p.tags:(p.tags?String(p.tags).split(/\s+/):[]),note:p.note||p.adminNote||"",bg:p.bg||"",img:p.img||"",react:re,shares:p.shares!=null?num(p.shares):null,ccount:p.ccount!=null?num(p.ccount):null,comments:(Array.isArray(p.comments)?p.comments:[]).map(normCmt).filter(Boolean),pending:!!p.pending,hidden:!!p.hidden}}
+
+/* apply a data block: returns list of play steps */
+function applyData(d,append){
+  if(!append){$("bellN").style.display="none";$("bellN").textContent="";S.posts=[];S.turns=[];S.notifs=[];S.myReacts={};S.page={name:"",avatar:"💌",cover:"",followers:"",verified:false,about:""};S.off="";feed.innerHTML=""}
+  if(d.skin){var k=String(d.skin).toLowerCase().replace(/[\s_-]/g,"");S.skin=SKINS[k]?k:(SK_ALIAS[k]||S.skin)}
+  if(d.page)S.page=Object.assign({},S.page,typeof d.page==="string"?{name:d.page}:d.page);
+  if(d.me)S.me=d.me;
+  S.off=d.off||"";
+  var steps=[];
+  (Array.isArray(d.posts)?d.posts:[]).forEach(function(raw){
+    var p=normPost(raw);var old=null;
+    for(var i=0;i<S.posts.length;i++){if(p.id&&S.posts[i].id===p.id){old=S.posts[i];break}}
+    if(!old){var shell=Object.assign({},p,{comments:[],react:{},shares:0,ccount:null});S.posts.unshift(shell);steps.push({k:"post",id:shell.id,ref:shell});p.comments.forEach(function(c){steps.push({k:"cmt",id:shell.id,c:c})});steps.push({k:"stats",id:shell.id,react:p.react,shares:p.shares,ccount:p.ccount})}
+    else{["time","admin","note","bg","img"].forEach(function(f){if(raw[f]!=null)old[f]=p[f]});if(raw.x||raw.text||raw.content)old.x=p.x;if(raw.tags)old.tags=p.tags;if(raw.hidden!=null)old.hidden=p.hidden;old.pending=false;
+      steps.push({k:"refresh",id:old.id});p.comments.forEach(function(c){steps.push({k:"cmt",id:old.id,c:c})});steps.push({k:"stats",id:old.id,react:p.react,shares:p.shares,ccount:p.ccount})}
+  });
+  (Array.isArray(d.events)?d.events:[]).forEach(function(e){steps.push({k:"notif",x:typeof e==="string"?e:(e.x||e.text||"")})});
+  S.turns.push(steps.length);
+  return steps;
+}
+
+/* ---------------- render ---------------- */
+function renderHead(){var K=sk(),p=S.page||{};
+  phone.className="s-"+(skinOverride||S.skin)+(S.dark?" dark":"");
+  $("pn").textContent=p.name||"Trang confession";$("barTitle").textContent=p.name||K.name;$("ptick").hidden=!p.verified;
+  $("pav").textContent=p.avatar||"💌";$("coverEmo").textContent=p.cover||p.avatar||"💌";
+  $("pmeta").textContent=(p.followers?p.followers+" "+K.fol:"")+(p.kind?" · "+p.kind:" · Cộng đồng");
+  $("pabout").textContent=p.about||"";$("pabout").style.display=p.about?"":"none";
+  $("likePage").textContent=S.liked?"👍 Đã thích":"👍 "+K.like;$("sendCfsBtn").textContent=K.send;$("composeBtn").textContent=K.ask;
+  $("meAv").textContent=S.me?initial(S.me):"🙂";
+  $("offBtn").style.display=S.off?"grid":"none";$("offTxt").textContent=S.off||"";
+  $("empty").style.display=(S.posts.length||S.page.name)?"none":"flex";
+  $("darkBtn").textContent=S.dark?"☀️":"🌙";$("darkBtn").style.display=(skinOverride||S.skin)==="phay"?"grid":"none";
+  buildTagChips();buildSkinRow();
+}
+function bdgHTML(b){if(!b)return"";return String(b).split(/[ ,|]+/).filter(Boolean).map(function(x){x=x.toLowerCase();var lab={top:"⭐ Fan cứng",admin:"👑 Quản trị viên",ad:"👑 Quản trị viên",author:"✍️ Tác giả",op:"✍️ Tác giả",npc:"✦",new:"🆕 Mới"}[x];var cls={ad:"admin",op:"author"}[x]||x;return lab?'<span class="bdg '+cls+'">'+lab+'</span>':""}).join("")}
+function cmtEl(c,isReply){var d=document.createElement("div");
+  if(c.t==="sys"){d.className="sysl";d.textContent="🛡 "+c.x;return d}
+  if(c.t==="event"){d.className="evl";d.textContent="⚡ "+c.x;return d}
+  d.className="cm"+(isReply?" reply":"")+(c.t==="me"?" me":"");
+  var anon=/ẩn danh/i.test(c.u);
+  var reacts=c.re?String(c.re):(c.likes?"👍":"");
+  d.innerHTML='<div class="av" style="background:'+(anon?"#8a8d91":colorOf(c.u))+'">'+(anon?"👤":esc(initial(c.u)))+'</div><div class="bx"><div class="bb"><div class="nm">'+esc(c.u)+" "+bdgHTML(c.b)+'</div><div class="tx">'+(c.to?'<span class="at">'+esc(c.to)+'</span> ':"")+linkify(c.x)+'</div>'+(c.likes?'<span class="rc">'+esc(reacts||"👍")+" "+fmt(num(c.likes))+'</span>':"")+'</div><div class="ln"><span>'+esc(c.time||"Vừa xong")+'</span><span>'+esc(sk().like)+'</span><span>Phản hồi</span></div></div>';
+  if(c.id){d.dataset.commentId=c.id;var meta=document.createElement('small');meta.className='bridge-id';meta.textContent='ID '+c.id;d.appendChild(meta);var reply=document.createElement('button');reply.className='bridge-reply';reply.textContent='Trả lời';reply.onclick=function(){function has(a){return a.some(x=>x.id===c.id||has(x.r||[]))}var post=S.posts.find(p=>has(p.comments||[]));if(!post)return;var text=prompt('Trả lời '+c.u+':');if(text)bridgeAction('comment',post.id,{text:text,as:S.me||'Mình',reply_to:c.id})};d.appendChild(reply)}
+  return d}
+function postEl(p){var K=sk(),pg=S.page||{};var d=document.createElement("div");d.className="post"+(p.pending?" pending":"");d.id="post-"+p.id;d.title="ID bài: "+p.id;
+  var head='<div class="ph"><div class="av">'+esc(pg.avatar||"💌")+'</div><div><div class="n">'+esc(pg.name||"Trang confession")+'</div><div class="t">'+esc(p.time)+(p.admin?" · "+esc(p.admin):"")+' · 🌐</div></div><div class="more">⋯</div></div>';
+  var body;
+  if(p.hidden){body='<div class="pb" style="color:var(--ink2);font-style:italic">🚫 Bài viết này đã bị quản trị viên ẩn.</div>'}
+  else if(p.bg&&p.x.length<=160){body='<div class="pb"><span class="num">#'+esc(K.post==="Confession"?"CFS":"")+esc(p.id)+'</span></div><div class="bgpost" style="background:'+bgOf(p.bg)+'">'+esc(p.x)+'</div><div class="pb">'+tagsHTML(p)+noteHTML(p)+'</div>'}
+  else{var full=p.x,cut=full.length>420;body='<div class="pb"><span class="num">#'+esc(K.post==="Confession"?"CFS":"")+esc(p.id)+'</span>\n'+(cut?'<span class="short">'+linkify(full.slice(0,380))+'… <button class="seeMore">Xem thêm</button></span><span class="full" style="display:none">'+linkify(full)+'</span>':linkify(full))+tagsHTML(p)+noteHTML(p)+'</div>'+(p.img?'<div class="imgpost">'+esc(p.img)+'</div>':"")}
+  d.innerHTML=head+body+'<div class="rs"><div class="em"><i class="ei"></i><span class="rt"></span></div><div class="cs"></div></div><div class="acts"><button class="likeB">👍 '+esc(K.like)+'</button><button class="cmB">💬 '+esc(K.cmt)+'</button><button class="shB">↗️ '+esc(K.share)+'</button></div><div class="cmts"><div class="sort">Phù hợp nhất ▾</div><div class="list"></div><div class="cin"><div class="av">'+(S.me?esc(initial(S.me)):"🙂")+'</div><input placeholder="Viết '+esc(K.cmt.toLowerCase())+' công khai..." maxlength="300"></div></div>';
+  var sm=d.querySelector(".seeMore");if(sm)sm.onclick=function(){d.querySelector(".short").style.display="none";d.querySelector(".full").style.display=""};
+  d.querySelector(".likeB").onclick=function(ev){openPicker(ev.currentTarget,p)};
+  d.querySelector(".cmB").onclick=function(){d.querySelector(".cin input").focus()};
+  d.querySelector(".shB").onclick=function(){var dest=prompt("Chia sẻ tới ai / nhóm nào?");if(dest)bridgeAction("share",p.id,{destination:dest})};
+  d.querySelector(".cin input").addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();var v=this.value.trim();if(v&&bridgeAction('comment',p.id,{text:v,as:S.me||'Mình'}))this.value=''}});
+  d.querySelectorAll('.list .cm').forEach(function(){});
+  return d}
+function tagsHTML(p){return p.tags&&p.tags.length?'<div class="tags">'+p.tags.map(function(t){return esc(t.charAt(0)==="#"?t:"#"+t)}).join(" ")+'</div>':""}
+function noteHTML(p){return p.note?'<div class="ad">'+esc(p.note)+'</div>':""}
+function bgOf(k){var m={pink:"linear-gradient(135deg,#ff6a88,#ff99ac)",blue:"linear-gradient(135deg,#2b5876,#4e4376)",purple:"linear-gradient(135deg,#8e2de2,#4a00e0)",orange:"linear-gradient(135deg,#f12711,#f5af19)",green:"linear-gradient(135deg,#11998e,#38ef7d)",dark:"linear-gradient(135deg,#232526,#414345)",red:"linear-gradient(135deg,#cb2d3e,#ef473a)"};return m[k]||m.pink}
+function updateStats(p){var el=$("post-"+p.id);if(!el)return;var tot=0,arr=[];RE_KEYS.forEach(function(k){var v=num(p.react[k]||0);if(v>0){tot+=v;arr.push([k,v])}});arr.sort(function(a,b){return b[1]-a[1]});
+  el.querySelector(".ei").innerHTML=arr.slice(0,3).map(function(a){return "<span>"+RE[a[0]]+"</span>"}).join("");
+  el.querySelector(".rt").textContent=tot?fmt(tot):"";
+  var cc=p.ccount!=null?p.ccount:countCmts(p);var parts=[];if(cc)parts.push(fmt(cc)+" "+sk().cmt.toLowerCase());if(p.shares)parts.push(fmt(p.shares)+" lượt "+sk().share.toLowerCase());el.querySelector(".cs").textContent=parts.join(" · ");
+  var lb=el.querySelector(".likeB"),mine=S.myReacts[p.id];lb.classList.toggle("on",!!mine);lb.textContent=(mine?RE[mine]:"👍")+" "+(mine?({like:sk().like,love:"Yêu thích",care:"Thương thương",haha:"Haha",wow:"Wow",sad:"Buồn",angry:"Phẫn nộ"}[mine]):sk().like)}
+function countCmts(p){var n=0;p.comments.forEach(function(c){if(c.t!=="sys"&&c.t!=="event"){n++;n+=(c.r||[]).length}});return n}
+function renderAll(){feed.innerHTML="";S.posts.forEach(function(p){var el=postEl(p);feed.appendChild(el);var list=el.querySelector(".list");p.comments.forEach(function(c){list.appendChild(cmtEl(c));(c.r||[]).forEach(function(r){list.appendChild(cmtEl(r,true))})});updateStats(p)})}
+
+/* ---------------- playback ---------------- */
+function play(steps){queue=queue.concat(steps);if(!playing)next(playTok)}
+function next(tok){if(tok!==playTok)return;if(!queue.length){playing=false;save();return}playing=true;var s=queue.shift();var wait=run(s);var t=playTok;setTimeout(function(){next(t)},speed>=50?0:wait/speed)}
+function findPost(id){for(var i=0;i<S.posts.length;i++)if(S.posts[i].id===id)return S.posts[i];return null}
+function run(s){var p=findPost(s.id);
+  if(s.k==="post"){var el=postEl(s.ref);feed.insertBefore(el,feed.firstChild);updateStats(s.ref);if(scroller.scrollTop>400)$("newPill").style.display="block";return 900}
+  if(s.k==="refresh"){if(p){var old=$("post-"+p.id);if(old){var nw=postEl(p);var list=old.querySelector(".list");nw.querySelector(".list").replaceWith(list);old.replaceWith(nw);updateStats(p)}}return 200}
+  if(s.k==="cmt"){if(!p)return 0;var list2=$("post-"+p.id).querySelector(".list");
+    if(speed<50){var ty=document.createElement("div");ty.className="typing";ty.innerHTML='<div class="dots"><i></i><i></i><i></i></div><span>Ai đó đang viết...</span>';list2.appendChild(ty);setTimeout(function(){ty.remove()},Math.max(250,600/speed))}
+    setTimeout(function(){p.comments.push(s.c);var el=cmtEl(s.c);list2.appendChild(el);(s.c.r||[]).forEach(function(r,i){setTimeout(function(){list2.appendChild(cmtEl(r,true))},speed>=50?0:(i+1)*700/speed)});if(s.c.t!=="sys"&&s.c.t!=="event"){p.ccount=p.ccount!=null?Math.max(p.ccount,countCmts(p)):null}updateStats(p);if(/@/.test(s.c.x)&&speed<50){var m=s.c.x.match(/@([^\s@.,!?:;]+)/);if(m)notify("💬","<b>"+esc(s.c.u)+"</b> đã nhắc đến <b>@"+esc(m[1])+"</b> trong một bình luận")}if(s.c.t==="event")notify("⚡",esc(s.c.x))},speed>=50?0:Math.max(250,600/speed));
+    var len=String(s.c.x||"").length;return Math.min(2600,900+len*18)+(s.c.r||[]).length*700}
+  if(s.k==="stats"){if(!p)return 0;tweenReacts(p,s.react,s.shares,s.ccount);return 300}
+  if(s.k==="notif"){notify("🔔",esc(s.x));return 1200}
+  return 0}
+function tweenReacts(p,target,shares,ccount){var from={};RE_KEYS.forEach(function(k){from[k]=num(p.react[k]||0)});var to=Object.assign({},from);Object.keys(target||{}).forEach(function(k){to[k]=num(target[k])});var t0=performance.now(),dur=speed>=50?1:900;
+  if(shares!=null)p.shares=shares;if(ccount!=null)p.ccount=ccount;
+  (function step(now){var k=Math.min(1,(now-t0)/dur);RE_KEYS.forEach(function(r){p.react[r]=Math.round(from[r]+(to[r]-from[r])*k)});updateStats(p);if(k<1)requestAnimationFrame(step)})(performance.now())}
+function notify(icon,html){S.notifs.unshift({i:icon,h:html});if(S.notifs.length>40)S.notifs.length=40;var b=$("bellN");b.style.display="grid";b.textContent=Math.min(99,(parseInt(b.textContent,10)||0)+1);
+  var n=$("notif");$("notifI").textContent=icon;$("notifT").innerHTML=html;n.style.display="flex";n.style.animation="none";void n.offsetWidth;n.style.animation="drop .35s ease-out";clearTimeout(n._h);n._h=setTimeout(function(){n.style.display="none"},2600)}
+function showAllNow(){playTok++;var s=speed;speed=99;var q=queue.splice(0);q.forEach(function(st){run(st)});speed=s;playing=false;setTimeout(function(){renderAll();save()},20)}
+
+/* ---------------- load flows ---------------- */
+function loadText(raw,append){var objs=extractBlocks(raw);if(!objs.length){toast("❌ Không đọc được dữ liệu.<br>Copy lại nguyên khối bot gửi (từ dấu { đầu tới dấu } cuối) rồi dán lại nha.",5000);return false}
+  playTok++;playing=false;if(!append)queue=[];
+  var steps=[];objs.forEach(function(o,i){steps=steps.concat(applyData(o,append||i>0))});
+  renderHead();if(!append)scroller.scrollTop=0;play(steps);save();closeSheets();toast("💌 Đã nạp "+objs.length+" khối · "+steps.length+" bước",1800);return true}
+function replayLast(){var n=S.turns.length?S.turns[S.turns.length-1]:0;if(!n){toast("Chưa có lượt nào để chạy lại");return}toast("Bấm 📥 rồi dán lại khối dữ liệu cuối để chạy lại hiệu ứng nha",3200)}
+
+/* ---------------- sheets & UI ---------------- */
+function openSheet(id){closeSheets();$(id).classList.add("on");$("scrim").style.display="block"}
+function closeSheets(){document.querySelectorAll(".sheet").forEach(function(s){s.classList.remove("on")});$("scrim").style.display="none";if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();phone.scrollTop=0}
+document.querySelectorAll("[data-close]").forEach(function(b){b.onclick=closeSheets});$("scrim").onclick=closeSheets;
+$("dataBtn").onclick=$("emptyLoad").onclick=function(){openSheet("dataSheet")};
+$("loadAppend").onclick=function(){if(loadText($("dataIn").value,true))$("dataIn").value=""};
+$("loadNew").onclick=function(){if(loadText($("dataIn").value,false))$("dataIn").value=""};
+$("pasteBtn").onclick=function(){if(navigator.clipboard&&navigator.clipboard.readText){navigator.clipboard.readText().then(function(t){$("dataIn").value=t;toast("Đã dán. Bấm Nạp tiếp hoặc Trang mới.")},function(){toast("Trình duyệt không cho đọc bộ nhớ. Nhấn giữ ô trống rồi chọn Dán nha.",3500)})}else toast("Nhấn giữ ô trống rồi chọn Dán nha.",3000)};
+$("showAll").onclick=function(){showAllNow();closeSheets()};$("replay2").onclick=replayLast;
+$("clearAll").onclick=function(){var b=this;if(!b._armed){b._armed=true;b.textContent="Bấm lần nữa để xóa";setTimeout(function(){b._armed=false;b.textContent="🗑 Xóa trang"},2500);return}try{localStorage.removeItem(LS)}catch(e){}location.reload()};
+[["0.5x",.5],["1x",1],["2x",2],["4x",4]].forEach(function(o){var b=document.createElement("button");b.className="btn sm"+(speed===o[1]?" on":"");b.textContent=o[0];b.onclick=function(){speed=o[1];document.querySelectorAll("#speedRow .btn").forEach(function(x){x.classList.remove("on")});b.classList.add("on");save()};$("speedRow").appendChild(b)});
+function buildSkinRow(){var r=$("skinRow"),cur=skinOverride||S.skin;if(r._b===cur)return;r._b=cur;r.innerHTML="";var a=document.createElement("button");a.className="btn sm"+(!skinOverride?" on":"");a.textContent="Theo bot";a.onclick=function(){skinOverride="";save();renderHead();renderAll()};r.appendChild(a);
+  Object.keys(SKINS).forEach(function(k){var b=document.createElement("button");b.className="btn sm"+(skinOverride===k?" on":"");b.textContent=SKINS[k].name;b.onclick=function(){skinOverride=k;save();renderHead();renderAll()};r.appendChild(b)})}
+var chosenTags=[];
+function buildTagChips(){var K=sk(),box=$("tagChips");if(box._b===K.name)return;box._b=K.name;box.innerHTML="";chosenTags=[];K.tags.forEach(function(t){var b=document.createElement("button");b.textContent=t;b.onclick=function(){var i=chosenTags.indexOf(t);if(i>=0){chosenTags.splice(i,1);b.classList.remove("on")}else{chosenTags.push(t);b.classList.add("on")}};box.appendChild(b)})}
+$("sendCfsBtn").onclick=$("composeBtn").onclick=function(){openSheet("cfsSheet")};
+$("cfsSend").onclick=function(){var v=$('cfsIn').value.trim();if(!v){toast('Viết nội dung trước nha');return;}if(bridgeAction('submit','',{text:v,tags:chosenTags.slice()})){$('cfsIn').value='';closeSheets()}};
+$("likePage").onclick=function(){bridgeAction('follow','',{value:!bridgeEffective('follow','','value',!!S.liked)})};
+$("msgBtn").onclick=function(){toast("Trang này không nhận tin nhắn riêng, gửi bài giấu tên nha 😉",2200)};
+$("darkBtn").onclick=function(){S.dark=!S.dark;renderHead();save()};
+$("offBtn").onclick=function(){openSheet("offSheet")};
+$("backBtn").onclick=function(){scroller.scrollTop=0};
+$("newPill").onclick=function(){scroller.scrollTop=0;this.style.display="none"};
+scroller.addEventListener("scroll",function(){if(scroller.scrollTop<200)$("newPill").style.display="none";$("picker").style.display="none"});
+$("bell").onclick=function(){var b=$("bellN");b.style.display="none";b.textContent="";$("notifList").innerHTML=S.notifs.length?S.notifs.map(function(n){return '<div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px"><span style="font-size:20px">'+n.i+'</span><span>'+n.h+'</span></div>'}).join(""):'<p>Chưa có thông báo nào.</p>';openSheet("notifSheet")};
+/* reaction picker */
+var pickFor=null;
+(function(){var pk=$('picker');RE_KEYS.forEach(function(k){var b=document.createElement('button');b.textContent=RE[k];b.onclick=function(){if(!pickFor)return;bridgeAction('react',pickFor.id,{value:k});pk.style.display='none'};pk.appendChild(b)});var clear=document.createElement('button');clear.textContent='×';clear.title='Gỡ cảm xúc';clear.onclick=function(){if(pickFor)bridgeAction('react',pickFor.id,{value:null});pk.style.display='none'};pk.appendChild(clear)})();
+function openPicker(btn,p){var pk=$('picker');pickFor=p;var r=btn.getBoundingClientRect(),pr=phone.getBoundingClientRect();pk.style.display='flex';pk.style.left=Math.max(6,r.left-pr.left-6)+'px';pk.style.top=(r.top-pr.top-60)+'px'}
+document.addEventListener("click",function(e){var pk=$("picker");if(pk.style.display==="flex"&&!pk.contains(e.target)&&!e.target.classList.contains("likeB"))pk.style.display="none"});
+function fly(em,x,y){var pr=phone.getBoundingClientRect(),f=document.createElement("div");f.className="flyre";f.textContent=em;f.style.left=(x-pr.left-15)+"px";f.style.top=(y-pr.top-15)+"px";phone.appendChild(f);setTimeout(function(){f.remove()},1100)}
+
+/* ---------------- demo ---------------- */
+var DEMO='```json\n{"skin":"phay","page":{"name":"Trường THPT Hoa Sen Confessions","avatar":"🌸","cover":"🏫","followers":"18K","verified":true,"about":"Nơi nói những điều không dám nói. Inbox bài, ad duyệt trong 24h."},"off":"Ở bàn cuối lớp 11A2, Minh Khôi lướt tới bài #4521 rồi úp điện thoại xuống bàn hơi mạnh tay.","posts":[{"id":"4520","time":"5 giờ","admin":"Ad Mèo","x":"Căn tin hôm nay bán bánh mì chả mà chả mỏng tới mức nhìn xuyên qua thấy tương lai luôn á mn 😭","tags":["#hài"],"bg":"orange","react":{"haha":412,"like":88,"wow":9},"shares":21,"comments":[{"u":"Trần Bảo Ngọc","b":"top","x":"thấy tương lai có điểm 10 hoá không bạn","likes":56,"re":"😆","r":[{"u":"Lê Hoàng","x":"thấy 3 điểm thôi","likes":12}]},{"u":"Cô Lan Căn Tin","x":"MAI CÔ LÀM DÀY HƠN NHA CÁC CON","likes":203,"re":"❤️😆"}]},{"id":"4521","time":"12 phút","admin":"Ad Mèo","x":"Gửi bạn nam áo trắng hay ngồi bàn 3 thư viện chiều thứ Sáu. Hôm đó bạn làm rơi cái móc khóa hình con mèo đen, mình nhặt được mà không dám đưa. Mình nghe bạn trả lời cô giáo câu hỏi khó nhất lớp rồi tự nhiên quên mất mình đang cầm gì. Nếu bạn đọc được thì ngày mai mình để móc khóa ở quầy thủ thư nha. Không cần biết mình là ai đâu.","tags":["#tìm_người","#tỏ_tình"],"note":"Ad: bàn 3 thư viện là bàn gần cửa sổ đúng không mọi người 👀","react":{"love":312,"like":140,"wow":40,"haha":12},"shares":34,"comments":[{"u":"Phạm Thu Hà","b":"top","x":"áo trắng bàn 3 thư viện thứ Sáu… khoan, trường mình có mấy người đâu 👀👀","likes":88,"re":"😮😆"},{"u":"Người tham gia ẩn danh","x":"móc khóa mèo đen thì 11A2 có 1 ông","likes":64,"r":[{"u":"Nguyễn Gia Huy","x":"@Minh Khôi ra đây mau","likes":120,"re":"😆"},{"u":"Phạm Thu Hà","x":"ôi Huy đừng gọi tên thật chứ 😭","likes":30}]},{"t":"sys","x":"Một bình luận đã bị quản trị viên ẩn vì chứa số điện thoại."},{"u":"Đỗ Quỳnh Anh","x":"mình ship!! dù chưa biết ai với ai","likes":45,"re":"❤️"},{"u":"Lớp Trưởng 12A1","b":"new","x":"chiều thứ Sáu thư viện đóng cửa sớm mà ta","likes":9},{"t":"event","x":"Bài #CFS4521 đang được chú ý: hơn 500 lượt cảm xúc trong 15 phút"}]}],"events":["Nguyễn Gia Huy đã chia sẻ bài viết vào nhóm Hội 11A2 😎"]}\n```';
+$("demoBtn").onclick=function(){loadText(DEMO,false)};
+
+/* Manual, local-only exchange. UI gestures queue intent; only imported data is canon. */
+var B=DDNNBridge, MODULE='CFS', bridgeDefault=B.clone(S), bridgeKey='ddnn_bridge_1_'+MODULE, bridgeStore=null, bridgeBusy=false;
+function currentSession(){return bridgeStore.sessions.find(function(s){return s.session_id===bridgeStore.selected})}
+function bridgeSave(){if(!bridgeStore)return;try{localStorage.setItem(bridgeKey,JSON.stringify(bridgeStore))}catch(e){toast('⚠️ Không lưu được. Hãy sao lưu ngay trước khi đóng trang.',5000)}}
+function bridgePaint(){
+ var cs=currentSession(); playTok++;queue=[];playing=false;
+ S=Object.assign(B.clone(bridgeDefault),B.clone(cs.data));if(MODULE==='CFS')S.dark=!!cs.dark;skinOverride=cs.skinOverride||'';speed=cs.speed||1;
+ if(MODULE==='LIVE'){
+  S.turns=[(cs.lastFeed||[]).length];timerOn=false;timerSec=toSec(S.time);shownViewers=S.viewers;shownLikes=S.likes;tweenFrom=tweenTo={v:S.viewers,l:S.likes};
+  $('chat').innerHTML='';$('banners').innerHTML='';$('end').style.display='none';renderStatic();
+  (S.feed||[]).slice(-120).forEach(function(it){var z=Object.assign({},it);if(z.t==='gift'){z.t='c';z.x='đã tặng '+(z.n||'quà')+' '+z.g+' x'+z.q}if(z.t==='event')z.t='sys';addMsg(z)});renderCounters();if(S.end)showEnd();
+ }else{S.posts=(S.posts||[]).map(normPost);renderHead();renderAll()}
+ bridgeBadge();
+}
+function bridgeEffects(d,previous){
+ if(MODULE==='LIVE'){
+  var ids=new Set((previous.data.feed||[]).map(x=>x.id));
+  (d.feed||[]).filter(x=>!x.deleted&&!ids.has(x.id)).forEach(function(it,i){var row=Array.from($('chat').children).find(x=>x.dataset.itemId===it.id);if(row)row.style.opacity='0';var tok=playTok;setTimeout(function(){if(tok!==playTok)return;if(it.t==='gift'){giftBanner(normItem(it));hearts(4)}else if(it.t==='event')bigEvent(it.x);else if(it.t==='c')hearts(1);var el=Array.from($('chat').children).find(x=>x.dataset.itemId===it.id);if(el){el.style.animation='pop .4s ease-out';el.style.opacity='1'}},i*600/Math.max(.5,speed))});
+ }else{
+  (d.events||[]).forEach(function(e,i){var tok=playTok;setTimeout(function(){if(tok!==playTok)return;notify('🔔',esc(typeof e==='string'?e:e.x||''))},i*1400/Math.max(.5,speed))});
+  (d.posts||[]).forEach(function(p){var el=$('post-'+p.id);if(el){var prev=(previous.data.posts||[]).find(x=>x.id===p.id);if(!prev)el.style.animation='bridgePop .4s ease-out';var known=new Set();function collect(a){(a||[]).forEach(x=>{known.add(x.id);collect(x.r)})}if(prev)collect(prev.comments);Array.from(el.querySelectorAll('.cm')).filter(c=>!known.has(c.dataset.commentId)).forEach(function(c,i){c.style.animation='bridgePop .35s ease-out both';c.style.animationDelay=(i*250/Math.max(.5,speed))+'ms'})}});
+ }
+}
+function bridgeBadge(){var cs=currentSession(),n=cs.actions.filter(a=>!['accepted','rejected'].includes(a.status)).length;var b=$('bridgeOpen');if(b)b.textContent='⇄ '+n+' · '+cs.label+((cs.data.closed||cs.data.end)?' · ĐÃ ĐÓNG':'');}
+function bridgeAction(type,target,payload){try{var a=B.action(currentSession(),type,target,payload);bridgeSave();bridgeBadge();toast('⏳ Đã ghi thao tác, chưa gửi vào truyện. Bấm ⇄ để xuất.',2400);return a}catch(e){toast(esc(e.message),4000);return null}}
+function bridgeEffective(type,target,key,initial){var list=currentSession().actions;for(var i=list.length-1;i>=0;i--){var a=list[i];if(a.type===type&&a.target===(target||'')&&!['accepted','rejected'].includes(a.status))return a.payload[key]}return initial}
+function bridgeImport(raw,append){
+ try{
+  if(bridgeBusy)throw Error('Đang nạp dữ liệu.');var e=B.parse(raw),cs=currentSession();
+  if(e.protocol!=='DDNN_BRIDGE_1'){
+   if(!confirm('Dữ liệu v1.0 không có mã ván hoặc chống trùng. Chỉ xem trong một phiên tương thích riêng; không nhập vào phiên hiện tại. Tiếp tục?'))return false;
+   var allowed=(MODULE==='LIVE'?'skin host title time viewers likes cam off pinned top pk shop feed end me followed role':'skin page off posts events me liked myReacts role closed').split(' ');e=Object.fromEntries(Object.entries(e).filter(x=>allowed.includes(x[0])));B.checkData(e,MODULE);var ns=B.session(MODULE,'Dữ liệu cũ (chỉ xem)');ns.legacy=true;ns.data=e;ns.initialized=false;bridgeStore.sessions.push(ns);bridgeStore.selected=ns.session_id;bridgeSave();bridgePaint();closeSheets();return true;
+  }
+  if(e.mode==='snapshot'&&cs.initialized&&!cs.batches.includes(e.batch_id)&&!confirm('Snapshot thay toàn bộ dữ liệu hiển thị của phiên '+cs.label+'. Hàng đợi thao tác vẫn giữ. Tiếp tục?'))return false;
+  bridgeBusy=true;var result=B.receive(cs,e);if(result.duplicate){toast('Đã nhận gói này trước đó. Không nạp trùng.');return true;}
+  result.session.lastFeed=(e.data.feed||[]).filter(x=>!x.deleted).map(x=>x.id);bridgeStore.sessions[bridgeStore.sessions.indexOf(cs)]=result.session;bridgeSave();bridgePaint();bridgeEffects(e.data,cs);closeSheets();toast('✅ Đã nạp revision '+e.revision+'. Kết quả trong truyện theo dữ liệu bot.',2600);return true;
+ }catch(e){toast('❌ '+esc(e.message),5000);return false}finally{bridgeBusy=false}
+}
+function bridgeDialog(){
+ var cs=currentSession(),d=$('bridgeDialog');d.querySelector('h3').textContent=(MODULE==='LIVE'?'Lên Sóng':'Giấu Tên')+' · v1.1 · hai chiều thủ công';
+ var sel=$('bridgeSessions');sel.innerHTML='';bridgeStore.sessions.forEach(function(s){var o=document.createElement('option');o.value=s.session_id;o.textContent=s.label+' · r'+s.revision;sel.appendChild(o)});sel.value=cs.session_id;
+ $('bridgeInfo').textContent='Ván: '+cs.game_id+'\nPhiên: '+cs.session_id+'\n'+cs.story_mode+' · vai: '+(cs.data.role||(MODULE==='LIVE'?'viewer':'reader'))+(cs.legacy?' · dữ liệu cũ chỉ xem':'');
+ var list=$('bridgeActions');list.innerHTML='';cs.actions.slice(-100).reverse().forEach(function(a){var row=document.createElement('div');row.className='bridge-row';var t=document.createElement('div');t.textContent=({queued:'Chưa gửi',copied:'Đã copy, chưa xác nhận',pending:'Bot đang xử lý',accepted:'Đã chấp nhận',rejected:'Bị từ chối'}[a.status])+' · '+a.type+' '+a.target+'\n'+JSON.stringify(a.payload)+(a.reason?'\n'+a.reason:'');row.appendChild(t);if(a.status==='queued'){var b=document.createElement('button');b.textContent='Hủy trước khi gửi';b.onclick=function(){cs.actions=cs.actions.filter(x=>x.id!==a.id);bridgeSave();bridgeDialog();bridgeBadge()};row.appendChild(b)}list.appendChild(row)});
+ if(!list.children.length)list.textContent='Chưa có thao tác. Nút bấm chỉ xếp hàng, chưa làm NPC phản ứng.';
+ var role=cs.data.role; $('bridgeHost').hidden=!(MODULE==='LIVE'&&role==='host');$('bridgeModerate').hidden=!(['host','moderator'].includes(role));
+ if(!d.open)d.showModal();
+}
+function bridgeExport(){var cs=currentSession(),p=B.packet(cs);if(!p.actions.length){toast('Không có thao tác cần gửi.');return;}var t=JSON.stringify(p,null,2);$('bridgeTransfer').value=t;for(const a of cs.actions)if(a.status==='queued')a.status='copied';bridgeSave();bridgeDialog();bridgeBadge();copy(t);}
+function bridgeRequest(full){var cs=currentSession();var req={protocol:'DDNN_BRIDGE_1',kind:'request',module:MODULE,game_id:cs.game_id,session_id:cs.session_id,base_revision:cs.revision,mode:full?'snapshot':(cs.initialized?'delta':'snapshot'),story_mode:cs.story_mode};var t='Dùng lệnh '+(MODULE==='LIVE'?'65 Lên Sóng':'66 Giấu Tên')+' v1.1. Xuất JSON theo yêu cầu dưới, giữ chính xác mã ván/phiên. Không suy diễn thao tác từ ví dụ.\n'+JSON.stringify(req,null,2);$('bridgeTransfer').value=t;copy(t);}
+function downloadBridge(){var text=JSON.stringify(bridgeStore,null,2),a=document.createElement('a'),url=URL.createObjectURL(new Blob([text],{type:'application/json'}));a.href=url;a.download=MODULE+'_sao_luu_v1.1.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function bridgeRestore(raw){try{var x=B.validateStore(B.parse(raw),MODULE);if(!confirm('Khôi phục sẽ thay kho phiên hiện tại. Hãy tải sao lưu trước. Tiếp tục?'))return false;bridgeStore=x;bridgeSave();bridgePaint();bridgeDialog();return true}catch(e){toast('❌ '+esc(e.message),5000);return false}}
+function bridgeStart(){
+ try{var raw=localStorage.getItem(bridgeKey);if(raw)bridgeStore=B.validateStore(B.parse(raw),MODULE)}catch(e){alert('Không đọc được kho phiên. Dữ liệu cũ chưa bị ghi đè. Hãy sao chép localStorage hoặc dùng bản sao lưu.');return;}
+ if(!bridgeStore){var first=B.session(MODULE,'Ván 1');bridgeStore={format:'DDNN_BACKUP_1',module:MODULE,selected:first.session_id,sessions:[first]};}
+ var css=document.createElement('style');css.textContent='@keyframes bridgePop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}.bridge-id{display:block;font:10px monospace;opacity:.65}.bridge-reply{font-size:11px;padding:2px 6px;border:1px solid #888;border-radius:5px;margin-left:4px}#bridgeOpen{position:absolute;right:8px;top:calc(env(safe-area-inset-top) + 104px);z-index:28;background:#35132c;color:#fff;border:1px solid #e5b66a;border-radius:12px;padding:6px 9px;font-size:11px;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#bridgeDialog{background:#20121f;color:#fff;border:1px solid #b980a7;border-radius:18px;width:min(94vw,560px);max-height:88dvh;padding:18px;overflow:auto;margin:auto;font:14px system-ui}#bridgeDialog::backdrop{background:#000a}#bridgeDialog h3{font-size:17px;margin-bottom:12px}#bridgeDialog button,#bridgeDialog select{background:#503048;color:#fff;border:1px solid #a87795;border-radius:9px;padding:9px;margin:4px 3px;font:inherit}#bridgeDialog textarea{width:100%;height:120px;background:#100c10;color:#fff;border:1px solid #a87795;padding:9px;font:12px monospace}#bridgeInfo{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;color:#dbcbd7;margin:10px 0}.bridge-row{border-bottom:1px solid #705165;padding:9px 0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}#bridgeDialog p{line-height:1.5;margin:9px 0;color:#e0cbdc}';document.head.appendChild(css);
+ var open=document.createElement('button');open.id='bridgeOpen';open.onclick=bridgeDialog;phone.appendChild(open);
+ var dialog=document.createElement('dialog');dialog.id='bridgeDialog';dialog.innerHTML='<h3></h3><button id="bridgeClose">Đóng</button><p>Dữ liệu bot → nạp vào giao diện → thao tác → xuất về chat → bot xử lý → nạp cập nhật. Không kết nối AI tự động. Copy chưa có nghĩa đã gửi hoặc đã thành công.</p><select id="bridgeSessions" aria-label="Chọn phiên"></select><button id="bridgeNew">Tạo ván / phiên</button><pre id="bridgeInfo"></pre><button id="bridgeRequest">1. Sao chép yêu cầu dữ liệu</button><button id="bridgeFull">Lấy bản toàn bộ</button><button id="bridgeExport">2. Xuất thao tác về chat</button><button id="bridgeLoad">3. Nạp cập nhật</button><textarea id="bridgeTransfer" aria-label="Gói trao đổi để sao chép thủ công" placeholder="Gói sao chép luôn hiện ở đây để chép tay nếu trình duyệt chặn clipboard."></textarea><button id="bridgeHost">Hành động trên sóng</button><button id="bridgeModerate">Ghim / kiểm duyệt</button><button id="bridgeEnd">Yêu cầu kết thúc / đóng</button><h4>Thao tác và kết quả</h4><div id="bridgeActions"></div><p>Đã chấp nhận: bot đã xử lý ID; kết quả thực tế xem trong truyện và dữ liệu. Đang xử lý: còn chờ duyệt / kết quả. Không xóa thao tác đã copy vì có thể đã được gửi.</p><button id="bridgeBackup">Tải sao lưu toàn bộ</button><button id="bridgeRestore">Khôi phục sao lưu</button><input id="bridgeFile" type="file" accept="application/json,.json" hidden><button id="bridgeLegacy">Xem dữ liệu v1.0 đã lưu</button>';
+ document.body.appendChild(dialog);$('bridgeClose').onclick=()=>dialog.close();
+ $('bridgeSessions').onchange=function(){bridgeStore.selected=this.value;bridgeSave();bridgePaint();bridgeDialog()};
+ $('bridgeNew').onclick=function(){var label=prompt('Tên ván / buổi (chỉ dùng để phân biệt):','Phiên mới');if(!label)return;var game=prompt('Mã ván: để trống để tạo ván mới; dán mã ván có sẵn nếu cùng truyện.','');if(game===null)return;var mode=prompt('THẬT hoặc NGOẠI TRUYỆN?','THẬT');if(mode===null)return;if(!['THẬT','NGOẠI TRUYỆN'].includes(mode)){toast('Chỉ chọn THẬT hoặc NGOẠI TRUYỆN');return;}if(game.length>=200||bridgeStore.sessions.length>=100){toast('Mã ván quá dài hoặc đã đủ 100 phiên. Hãy sao lưu kho.');return;}var n=B.session(MODULE,label.slice(0,100),game.trim()||undefined);n.story_mode=mode;bridgeStore.sessions.push(n);bridgeStore.selected=n.session_id;bridgeSave();bridgePaint();bridgeDialog()};
+ $('bridgeRequest').onclick=function(){bridgeRequest(false)};$('bridgeFull').onclick=function(){bridgeRequest(true)};$('bridgeExport').onclick=bridgeExport;$('bridgeLoad').onclick=function(){dialog.close();openSheet('dataSheet')};$('bridgeBackup').onclick=downloadBridge;
+ $('bridgeRestore').onclick=()=>$('bridgeFile').click();$('bridgeFile').onchange=async function(){if(this.files[0])bridgeRestore(await this.files[0].text());this.value=''};
+ $('bridgeLegacy').onclick=function(){var raw=localStorage.getItem(MODULE==='LIVE'?'lensong_v1_state':'giauten_v1_state');if(!raw){toast('Không có dữ liệu v1.0 cũ ở trình duyệt này.');return;}try{var x=B.parse(raw);bridgeImport(JSON.stringify(x.S||{}),false);bridgeDialog()}catch(e){toast(esc(e.message))}};
+ $('bridgeHost').onclick=function(){var t=prompt('Viết chính xác lời / hành động của bạn trên sóng:');if(t)bridgeAction('host_act','',{text:t});bridgeDialog()};
+ $('bridgeModerate').onclick=function(){var t=prompt('ID dòng bình luận (LIVE) hoặc bài (CFS):');if(!t)return;var op=prompt(MODULE==='LIVE'?'pin hoặc hide?':'hide?','hide');if(op==='pin'&&MODULE==='LIVE')bridgeAction('pin',t,{});else if(op==='hide')bridgeAction('moderate',t,{operation:'hide'});bridgeDialog()};
+ $('bridgeEnd').onclick=function(){bridgeAction(MODULE==='LIVE'?'end':'close','',{});bridgeDialog()};
+ // Legacy destructive button is disabled: only explicit session creation / backup replacement.
+ $('clearAll').disabled=true;$('clearAll').textContent='Giữ lịch sử · tạo phiên mới bằng ⇄';
+ $('demoBtn').onclick=function(){dialog.close();bridgeImport(DEMO,false)};
+ if(MODULE==='LIVE')$('closeBtn').onclick=function(){bridgeAction('end','',{});bridgeDialog()};
+ replayLast=function(){var cs=currentSession();if(MODULE==='LIVE'){var items=(S.feed||[]).filter(x=>(cs.lastFeed||[]).includes(x.id));if(!items.length){toast('Chưa có lượt để xem lại');return;}playTok++;queue=[];playing=false;$('chat').innerHTML='';play(items.map(normItem));timerOn=false;closeSheets();}else{bridgeEffects({posts:S.posts,events:[]},{data:{}});toast('Đang xem lại hiệu ứng; không gửi thêm hành động.');}};$('replay2').onclick=replayLast;if(MODULE==='LIVE')$('replayBtn').onclick=replayLast;
+ loadText=bridgeImport;save=function(){if(bridgeStore){var s=currentSession();s.skinOverride=skinOverride;s.speed=speed;s.dark=!!S.dark;bridgeSave()}};
+ bridgePaint();bridgeSave();
+ // Testable public entry points operate exactly like the UI, no network or secret state.
+ window.DDNNApp={importData:bridgeImport,queue:bridgeAction,packet:()=>B.packet(currentSession()),state:()=>B.clone(currentSession()),backup:()=>B.clone(bridgeStore),restore:bridgeRestore,select:function(id){if(!bridgeStore.sessions.some(s=>s.session_id===id))throw Error('Unknown session');bridgeStore.selected=id;bridgePaint();bridgeSave()},newSession:function(label,game){var s=B.session(MODULE,label,game);bridgeStore.sessions.push(s);bridgeStore.selected=s.session_id;bridgePaint();bridgeSave();return B.clone(s)}};
+}
+bridgeStart();
+
+})();
+</script>
+</body>
+</html>
